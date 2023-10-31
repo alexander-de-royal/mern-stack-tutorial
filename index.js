@@ -43,11 +43,15 @@ app.get('/', (req, res) => {
     res.send('This is the home page')
 });
 
+app.get('/register', (req, res) => {
+    res.render('register')
+});
+
 app.post('/register', async (req, res) => {
     // res.send(req.body)
     const {password, username} = req.body;
     const hash = await bcrypt.hash(password, 12);
-    const user = new User({
+    const user = new User ({
         username,
         password: hash
     })
@@ -55,6 +59,21 @@ app.post('/register', async (req, res) => {
     // res.send(hash);
     res.redirect('/');
 });
+
+app.get('/login', (req, res) => {
+    res.render('login')
+})
+
+app.post('/login', async (req, res) => {
+    const { username, password} = req.body;
+    const user = await User.findOne({username});
+    const validPassword = await bcrypt.compare(password, user.password);
+    if(validPassword){
+        res.send('Welcome')
+    } else {
+        res.send('Try Again')
+    }
+})
 
 app.get('/secret', (req, res) => {
     res.send('This is secret! You cannot see me unless you are logged in')
